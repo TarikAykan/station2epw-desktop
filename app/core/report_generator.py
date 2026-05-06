@@ -91,6 +91,7 @@ def build_report_text(
     lines.append(f"  EPW dosyası: {epw_output_path or '(henüz oluşturulmadı)'}")
     lines.append("")
     lines.append("Bu rapor Station2EPW Desktop tarafından otomatik üretilmiştir.")
+    lines.append("Uygulama Tarık Aykan tarafından, betanova.tech çatısı altında geliştirilmiştir.")
     return "\n".join(lines)
 
 

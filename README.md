@@ -2,6 +2,8 @@
 
 Windows için geliştirilmiş, istasyon saatlik meteoroloji verilerini **EnergyPlus EPW** (`*.epw`) formatına dönüştüren masaüstü uygulaması. Arayüz **PySide6** ile yazılmıştır; veri işleme **pandas** ve **numpy** kullanır.
 
+Tarık Aykan tarafından, **betanova.tech** çatısı altında geliştirilmiştir.
+
 ## Özellikler
 
 - CSV ve Excel (`*.xlsx`, `*.xlsm`) okuma; CSV için UTF-8 / UTF-8-SIG / Latin-1 ve **chardet** ile kodlama denemesi, ayırıcı tahmini
