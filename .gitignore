@@ -6,3 +6,5 @@
 /dist/
 *.spec
 /_verify_out.epw
+/outputs/*
+!/outputs/.gitkeep

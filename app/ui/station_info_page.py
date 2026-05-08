@@ -37,6 +37,7 @@ class StationInfoPage(QWidget):
         self.data_year = QSpinBox()
         self.data_year.setRange(1900, 2100)
         self.data_year.setValue(2024)
+        self.data_period = QLineEdit()
         self.source = QLineEdit()
         self.description = QTextEdit()
         self.description.setMaximumHeight(90)
@@ -50,6 +51,7 @@ class StationInfoPage(QWidget):
         form.addRow("Saat dilimi *", self.timezone)
         form.addRow("Rakım (m) *", self.elevation)
         form.addRow("Veri yılı *", self.data_year)
+        form.addRow("Veri dönemi (opsiyonel)", self.data_period)
         form.addRow("Veri kaynağı", self.source)
         form.addRow("Açıklama / notlar", self.description)
 
@@ -70,6 +72,7 @@ class StationInfoPage(QWidget):
         self.elevation.setText(str(s.get("elevation", "")))
         if "data_year" in s:
             self.data_year.setValue(int(s["data_year"]))
+        self.data_period.setText(str(s.get("data_period", "")))
         self.source.setText(str(s.get("source", "")))
         self.description.setPlainText(str(s.get("description", "")))
 
@@ -84,6 +87,7 @@ class StationInfoPage(QWidget):
             "timezone": self.timezone.text().strip(),
             "elevation": self.elevation.text().strip(),
             "data_year": self.data_year.value(),
+            "data_period": self.data_period.text().strip(),
             "source": self.source.text().strip(),
             "description": self.description.toPlainText().strip(),
         }

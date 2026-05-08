@@ -42,6 +42,17 @@ FIELD_DEFINITIONS: list[tuple[str, str]] = [
     ("albedo", "Albedo"),
     ("liquid_precipitation_depth", "Liquid Precipitation Depth"),
     ("liquid_precipitation_quantity", "Liquid Precipitation Quantity"),
+    # PVsyst görünür etiketleri (aynı iç alanlara bağlanır)
+    ("pvsyst_date", "PVsyst Date"),
+    ("pvsyst_time", "PVsyst Time"),
+    ("pvsyst_ghi", "PVsyst Global Horizontal Irradiance (GHI)"),
+    ("pvsyst_dhi", "PVsyst Diffuse Horizontal Irradiance (DHI)"),
+    ("pvsyst_dni", "PVsyst Direct Normal Irradiance (DNI)"),
+    ("pvsyst_ambient_temperature", "PVsyst Ambient Temperature"),
+    ("pvsyst_wind_speed", "PVsyst Wind Speed"),
+    ("pvsyst_relative_humidity", "PVsyst Relative Humidity"),
+    ("pvsyst_precipitation", "PVsyst Precipitation"),
+    ("pvsyst_albedo", "PVsyst Albedo"),
 ]
 
 # küçük harf anahtar kelime -> dahili alan anahtarı
@@ -66,6 +77,8 @@ KEYWORD_RULES: list[tuple[list[str], str]] = [
     (["day", "gun", "gün"], "day"),
     (["hour", "saat", "hr"], "hour"),
     (["minute", "min", "dakika"], "minute"),
+    (["date"], "pvsyst_date"),
+    (["time"], "pvsyst_time"),
 ]
 
 
@@ -117,6 +130,27 @@ def guess_mapping(columns: list[str]) -> dict[str, str | None]:
             continue
         result[field_key] = col
         used.add(col)
+
+    # PVsyst alanları için EPW eşlerini otomatik yansıt
+    mirror_map = {
+        "pvsyst_ghi": "global_horizontal_radiation",
+        "pvsyst_dhi": "diffuse_horizontal_radiation",
+        "pvsyst_dni": "direct_normal_radiation",
+        "pvsyst_ambient_temperature": "dry_bulb",
+        "pvsyst_wind_speed": "wind_speed",
+        "pvsyst_relative_humidity": "relative_humidity",
+        "pvsyst_precipitation": "liquid_precipitation_depth",
+        "pvsyst_albedo": "albedo",
+    }
+    for pvs_key, epw_key in mirror_map.items():
+        if not result.get(pvs_key):
+            result[pvs_key] = result.get(epw_key)
+
+    if not result.get("pvsyst_date"):
+        # Ayrı date kolonu yoksa datetime veya zaman bileşenlerinden üretilecek
+        result["pvsyst_date"] = result.get(DATETIME_FIELD_KEY)
+    if not result.get("pvsyst_time"):
+        result["pvsyst_time"] = result.get(DATETIME_FIELD_KEY)
 
     return result
 

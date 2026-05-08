@@ -58,7 +58,9 @@ class ValidationPage(QWidget):
         self.refresh_table()
 
     def refresh_table(self) -> None:
-        results = self.main_window.state.validation_results
+        epw_results = self.main_window.state.validation_results
+        pvs_results = self.main_window.state.pvsyst_validation_results
+        results = list(epw_results) + list(pvs_results)
         self.table.setRowCount(len(results))
         for i, r in enumerate(results):
             self.table.setItem(i, 0, QTableWidgetItem(r.name))
@@ -75,11 +77,12 @@ class ValidationPage(QWidget):
             self.table.setItem(i, 3, QTableWidgetItem(crit))
         self.table.resizeColumnsToContents()
 
+        from app.core.pvsyst_validator import has_pvsyst_critical_errors
         from app.core.validator import has_blocking_errors
 
-        blocked = has_blocking_errors(results)
+        blocked = has_blocking_errors(epw_results) or has_pvsyst_critical_errors(pvs_results)
         self.summary.setText(
-            "Sonuç: EPW oluşturma engelli (kritik hata var)." if blocked else "Sonuç: Kritik engel yok; uyarıları raporda inceleyin."
+            "Sonuç: Çıktı üretimi engelli (kritik hata var)." if blocked else "Sonuç: Kritik engel yok; uyarıları raporda inceleyin."
         )
 
     def refresh_view(self) -> None:

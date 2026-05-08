@@ -67,9 +67,9 @@ def run_all_checks(df: pd.DataFrame, total_rows_expected: int | None = 8760) -> 
     )
 
     if total_rows_expected is not None:
-        if n == total_rows_expected:
+        if n in (8760, 8784):
             st = "ok"
-            msg = f"Tam yıl saatlik veri ({total_rows_expected} saat)."
+            msg = f"Tam yıl saatlik veri ({n} saat)."
         elif n > 0:
             st = "warning"
             msg = (
@@ -81,7 +81,7 @@ def run_all_checks(df: pd.DataFrame, total_rows_expected: int | None = 8760) -> 
             msg = "Veri yok."
         results.append(
             CheckResult(
-                name="8760 saat kontrolü",
+                name="8760/8784 saat kontrolü",
                 status=st,
                 description=msg,
                 critical=False,
@@ -244,6 +244,19 @@ def run_all_checks(df: pd.DataFrame, total_rows_expected: int | None = 8760) -> 
                     status="error",
                     description=f"{int(invalid)} değer fiziksel dışı (-90…70 °C dışı).",
                     critical=True,
+                )
+            )
+
+    dp = numeric_series("dew_point")
+    if dp is not None:
+        invalid = ((dp < -100) | (dp > 60)).sum()
+        if invalid:
+            results.append(
+                CheckResult(
+                    name="Çiğ noktası sıcaklığı",
+                    status="warning",
+                    description=f"{int(invalid)} değer fiziksel aralık dışında (-100…60 °C).",
+                    critical=False,
                 )
             )
         elif miss:
@@ -412,6 +425,32 @@ def run_all_checks(df: pd.DataFrame, total_rows_expected: int | None = 8760) -> 
                 )
             )
 
+    ghi = numeric_series("global_horizontal_radiation")
+    dhi = numeric_series("diffuse_horizontal_radiation")
+    dni = numeric_series("direct_normal_radiation")
+    if ghi is not None and dhi is not None:
+        bad = int(((dhi > ghi) & ghi.notna() & dhi.notna()).sum())
+        if bad:
+            results.append(
+                CheckResult(
+                    name="DHI > GHI kontrolü",
+                    status="warning",
+                    description=f"{bad} satırda DHI, GHI'den büyük.",
+                    critical=False,
+                )
+            )
+    if dni is not None:
+        neg = int((dni < 0).sum())
+        if neg:
+            results.append(
+                CheckResult(
+                    name="DNI negatif mi?",
+                    status="warning",
+                    description=f"{neg} satırda negatif DNI var.",
+                    critical=False,
+                )
+            )
+
     tsc = numeric_series("total_sky_cover")
     if tsc is not None:
         invalid = ((tsc < 0) | (tsc > 10)).sum()
@@ -421,6 +460,19 @@ def run_all_checks(df: pd.DataFrame, total_rows_expected: int | None = 8760) -> 
                     name="Toplam bulutluluk",
                     status="warning",
                     description=f"{int(invalid)} değer 0–10 ölçeği dışında (EPW ondalık bulut).",
+                    critical=False,
+                )
+            )
+
+    prcp = numeric_series("liquid_precipitation_depth")
+    if prcp is not None:
+        neg = int((prcp < 0).sum())
+        if neg:
+            results.append(
+                CheckResult(
+                    name="Yağış negatif mi?",
+                    status="warning",
+                    description=f"{neg} satırda negatif yağış.",
                     critical=False,
                 )
             )

@@ -13,7 +13,14 @@ import pandas as pd
 
 from .column_mapper import DATETIME_FIELD_KEY, apply_datetime_split
 from .epw_schema import EPW_HOURLY_COLUMNS, EPW_MISSING_VALUES, epw_header_lines
-from .unit_converter import UnitProfile, convert_pressure_series, convert_radiation_series, convert_temperature_series, convert_wind_speed_series
+from .unit_converter import (
+    UnitProfile,
+    convert_albedo_series,
+    convert_pressure_series,
+    convert_radiation_series,
+    convert_temperature_series,
+    convert_wind_speed_series,
+)
 from .validator import normalize_hours_for_epw
 
 # Dahili kolon adı -> EPW tam adı
@@ -109,6 +116,7 @@ def build_processed_dataframe(
     out["dew_point"] = convert_temperature_series(out["dew_point"], units.temperature)
     out["atmospheric_pressure"] = convert_pressure_series(out["atmospheric_pressure"], units.pressure)
     out["wind_speed"] = convert_wind_speed_series(out["wind_speed"], units.wind_speed)
+    out["albedo"] = convert_albedo_series(out["albedo"], units.albedo)
 
     rad_fields = [
         "global_horizontal_radiation",

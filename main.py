@@ -21,7 +21,7 @@ from app.main_window import MainWindow
 
 def main() -> None:
     app = QApplication(sys.argv)
-    app.setApplicationName("Station2EPW Desktop")
+    app.setApplicationName("Station2EPW Desktop — EPW and PVsyst Weather Data Converter")
     app.setOrganizationName("Station2EPW")
 
     window = MainWindow()

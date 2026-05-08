@@ -38,11 +38,14 @@ class UnitPage(QWidget):
 
         self.rad = QComboBox()
         self.rad.addItems(["Wh/m²", "W/m²"])
+        self.albedo = QComboBox()
+        self.albedo.addItems(["0–1", "%"])
 
         form.addRow("Sıcaklık", self.temp)
         form.addRow("Basınç", self.pressure)
         form.addRow("Rüzgar hızı", self.wind)
         form.addRow("Radyasyon (saatlik)", self.rad)
+        form.addRow("Albedo", self.albedo)
 
         layout.addWidget(box)
 
@@ -60,6 +63,7 @@ class UnitPage(QWidget):
         self.pressure.currentIndexChanged.connect(self._save)
         self.wind.currentIndexChanged.connect(self._save)
         self.rad.currentIndexChanged.connect(self._save)
+        self.albedo.currentIndexChanged.connect(self._save)
 
     def _map_temp(self, idx: int) -> str:
         return ["C", "K", "F"][idx]
@@ -73,6 +77,9 @@ class UnitPage(QWidget):
     def _map_rad(self, idx: int) -> str:
         return ["Wh/m2", "W/m2"][idx]
 
+    def _map_albedo(self, idx: int) -> str:
+        return ["0-1", "%"][idx]
+
     def _load_from_state(self) -> None:
         u = self.main_window.state.units
         # geri yükleme için kabaca metin eşlemesi
@@ -84,6 +91,7 @@ class UnitPage(QWidget):
         self.wind.setCurrentIndex(w_idx)
         r_idx = 0 if "wh" in u.radiation.lower() else 1
         self.rad.setCurrentIndex(r_idx)
+        self.albedo.setCurrentIndex(1 if u.albedo == "%" else 0)
 
     def _save(self) -> None:
         self.main_window.state.units = UnitProfile(
@@ -91,6 +99,7 @@ class UnitPage(QWidget):
             pressure=self._map_pressure(self.pressure.currentIndex()),
             wind_speed=self._map_wind(self.wind.currentIndex()),
             radiation=self._map_rad(self.rad.currentIndex()),
+            albedo=self._map_albedo(self.albedo.currentIndex()),
         )
 
     def save_to_state(self) -> None:

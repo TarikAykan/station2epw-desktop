@@ -23,11 +23,13 @@ class UnitProfile:
         pressure: str = "Pa",
         wind_speed: str = "m/s",
         radiation: str = "Wh/m2",
+        albedo: str = "0-1",
     ):
         self.temperature = temperature  # C, K, F
         self.pressure = pressure  # Pa, hPa, kPa
         self.wind_speed = wind_speed  # m/s, km/h, knot
         self.radiation = radiation  # Wh/m2, W/m2
+        self.albedo = albedo  # 0-1, %
 
 
 def convert_temperature_series(s: pd.Series, from_unit: str) -> pd.Series:
@@ -82,6 +84,18 @@ def convert_radiation_series(s: pd.Series, from_unit: str) -> tuple[pd.Series, b
     return x, False
 
 
+def convert_albedo_series(s: pd.Series, from_unit: str) -> pd.Series:
+    """
+    Albedo'yu 0-1 ölçeğine çevirir.
+    '%' seçilirse 100'e bölünür.
+    """
+    u = from_unit.strip().lower().replace(" ", "")
+    x = pd.to_numeric(s, errors="coerce")
+    if u in ("%", "percent", "pct"):
+        return x / 100.0
+    return x
+
+
 def summarize_conversions(profile: UnitProfile) -> list[str]:
     """Rapor için insan okunur özet satırları."""
     lines = [
@@ -89,6 +103,7 @@ def summarize_conversions(profile: UnitProfile) -> list[str]:
         f"Basınç kaynağı: {profile.pressure} → Pa",
         f"Rüzgar hızı kaynağı: {profile.wind_speed} → m/s",
         f"Radyasyon kaynağı: {profile.radiation} → Wh/m²",
+        f"Albedo kaynağı: {profile.albedo} → 0-1",
     ]
     norm = profile.radiation.lower().replace(" ", "").replace("²", "2").replace("**", "")
     if norm in ("w/m2", "wm2"):

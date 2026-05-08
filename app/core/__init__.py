@@ -1,1 +1,1 @@
-"""Çekirdek veri işleme ve EPW yazımı."""
+"""Çekirdek veri işleme: EPW + PVsyst yazımı."""
